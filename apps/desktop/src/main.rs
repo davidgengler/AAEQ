@@ -25,12 +25,15 @@ struct Args {
     /// Show console window for logs (Windows only)
     #[arg(long)]
     console: bool,
+
+    /// Run without a window: switch the EQ in the background until stopped
+    #[arg(long)]
+    headless: bool,
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Parse command-line arguments
-    #[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
     let args = Args::parse();
 
     // On Windows, allocate console if --console flag is present
@@ -118,6 +121,10 @@ async fn main() -> Result<()> {
     // Keep the instance lock alive for the entire application lifetime
     // We leak it intentionally to keep the lock held until process exit
     let _instance_guard = Box::leak(Box::new(_instance_guard));
+
+    if args.headless {
+        return aaeq_ui_egui::run_headless(pool).await;
+    }
 
     // Create app
     let mut app = AaeqApp::new(pool, db_path.clone());

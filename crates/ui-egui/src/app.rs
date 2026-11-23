@@ -3,6 +3,9 @@ use aaeq_device_wiim::{WiimController, discover_devices_quick};
 use aaeq_persistence::{AppSettingsRepository, CustomEqPresetRepository, GenreOverrideRepository, LastAppliedRepository, MappingRepository, ProfileRepository};
 use crate::views::*;
 use crate::album_art::AlbumArtCache;
+
+mod headless;
+pub use headless::run_headless;
 use anyhow::Result;
 use sqlx::SqlitePool;
 use std::sync::Arc;

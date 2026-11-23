@@ -30,8 +30,10 @@ impl SingleInstanceGuard {
 
             // Parse the PID
             if let Ok(pid) = contents.trim().parse::<u32>() {
-                // Check if the process is still running
-                if is_process_running(pid) {
+                // Check if the process is still running. A lock holding our own PID is
+                // stale: in a restarted container the PIDs repeat, so it was left by
+                // the previous run, not by another instance.
+                if pid != std::process::id() && is_process_running(pid) {
                     anyhow::bail!("Another instance is already running (PID: {})", pid);
                 } else {
                     // Process is dead, clean up stale lock
